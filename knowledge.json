@@ -1,3 +1,4 @@
+/opt/homebrew/bin/bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8): No such file or directory
 {
   "entity": {
     "name": "SentinelID",
@@ -52,6 +53,11 @@
       "url": "integraciones.html",
       "name": "Integraciones",
       "purpose": "architecture"
+    },
+    {
+      "url": "noticias.html",
+      "name": "Noticias IAM",
+      "purpose": "external-news"
     }
   ],
   "faq": [

@@ -1,3 +1,4 @@
+/opt/homebrew/bin/bash: warning: setlocale: LC_ALL: cannot change locale (C.UTF-8): No such file or directory
 (() => {
   const $ = (s, c = document) => c.querySelector(s);
   const $$ = (s, c = document) => [...c.querySelectorAll(s)];
@@ -100,14 +101,145 @@
   });
   recalc();
 
+  const normalize = (value) => String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9ñü\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const tokenize = (value) => normalize(value).split(' ').filter((token) => token.length > 2);
+
+  const answerFromKnowledge = (knowledge, question) => {
+    const normalized = normalize(question);
+    const tokens = tokenize(question);
+    if (!normalized) return 'Escribe una pregunta sobre SentinelID, IAM, Okta, Entra ID, identidades, accesos o auditoría.';
+    if (/^(hola|buenas|buenos dias|buenas tardes|hey|que tal)/.test(normalized)) {
+      return 'Hola. Puedo orientarte sobre el propósito del portal, sus módulos, integraciones, auditoría y el alcance del prototipo.';
+    }
+
+    const faq = knowledge?.faq || [];
+    let best = null;
+    let bestScore = 0;
+    faq.forEach((item) => {
+      const haystack = tokenize(`${item.question} ${item.answer}`);
+      const score = tokens.reduce((sum, token) => sum + (haystack.includes(token) ? 1 : 0), 0);
+      if (score > bestScore) { bestScore = score; best = item; }
+    });
+    if (best && bestScore >= Math.min(2, Math.max(1, tokens.length))) return best.answer;
+
+    const entity = knowledge?.entity || {};
+    const source = knowledge?.sourceRecord || {};
+    if (/(que es|para que sirve|objetivo|sentinelid|portal|proyecto)/.test(normalized)) {
+      return entity.directAnswer || entity.description;
+    }
+    if (/(okta|entra|integracion|mcp|api)/.test(normalized)) {
+      return 'La primera integración prevista es Okta mediante APIs/MCP. La arquitectura queda preparada para Microsoft Entra ID e Identity Governance; esta versión pública todavía usa datos sintéticos.';
+    }
+    if (/(modulo|pagina|dashboard|identidad|usuario|grupo|aplicacion|acceso|auditoria)/.test(normalized)) {
+      return 'El portal cubre Dashboard, Identidades, Grupos, Aplicaciones, Asistente IA, Auditoría e Integraciones. Puedes explorar cada módulo desde el menú principal.';
+    }
+    if (/(real|credencial|tenant|dato|sintet)/.test(normalized)) {
+      return 'No. El prototipo usa identidades sintéticas y no contiene credenciales ni conexión a un tenant real.';
+    }
+    if (/(cambiar|modificar|ejecutar|alta|baja|permiso|privilegio)/.test(normalized)) {
+      return 'El MVP es principalmente consultivo. Una acción sensible debe requerir rol, aprobación, registro, controles de riesgo y supervisión humana.';
+    }
+    if (/(seguridad|politica|control|trazabilidad|registro)/.test(normalized)) {
+      return 'SentinelID prioriza resultados explicables, registro de consultas, control humano y separación entre consultar información y ejecutar cambios.';
+    }
+    if (/(noticia|actualidad|feed|fuente|rss)/.test(normalized)) {
+      return 'Puedes consultar la sección Noticias IAM para ver titulares recientes de fuentes externas como Infosecurity Magazine, Microsoft Security Blog y CISA.';
+    }
+    if (source.businessDescription) {
+      return 'Puedo ayudarte con el propósito del portal, sus módulos, Okta, Entra ID, auditoría y el alcance del MVP. Prueba una pregunta más específica.';
+    }
+    return 'Puedo orientarte sobre SentinelID, sus módulos IAM, integraciones, datos sintéticos y controles de auditoría.';
+  };
+
+  const loadKnowledge = (() => {
+    let promise;
+    return () => {
+      if (!promise) promise = fetch('knowledge.json', {cache: 'no-store'}).then((res) => res.ok ? res.json() : {}).catch(() => ({}));
+      return promise;
+    };
+  })();
+
+  const appendMessage = (stream, text, role = 'bot') => {
+    if (!stream) return;
+    const message = document.createElement('div');
+    message.className = role === 'user' ? 'bubble user' : 'bubble';
+    message.textContent = text;
+    stream.append(message);
+    stream.scrollTo({top: stream.scrollHeight, behavior: 'smooth'});
+  };
+
+  const askAssistant = async (question, stream) => {
+    const value = question.trim(); if (!value) return;
+    appendMessage(stream, value, 'user');
+    appendMessage(stream, 'Estoy revisando la información del portal…');
+    const knowledge = await loadKnowledge();
+    const pending = stream?.lastElementChild;
+    if (pending) pending.textContent = answerFromKnowledge(knowledge, value);
+    stream?.scrollTo({top: stream.scrollHeight, behavior: 'smooth'});
+  };
+
+  const loadNews = async () => {
+    const grid = $('#news-grid'); const status = $('#news-status');
+    if (!grid) return;
+    try {
+      const response = await fetch('/api/noticias', {cache: 'no-store'});
+      if (!response.ok) throw new Error('news request failed');
+      const data = await response.json();
+      grid.replaceChildren();
+      (data.items || []).forEach((item) => {
+        const card = document.createElement('article'); card.className = 'card news-card';
+        const meta = document.createElement('div'); meta.className = 'news-meta';
+        const source = document.createElement('span'); source.textContent = item.sourceName || 'Fuente externa';
+        const date = document.createElement('time'); date.dateTime = item.publishedAt || '';
+        const parsed = item.publishedAt ? new Date(item.publishedAt) : null;
+        date.textContent = parsed && !Number.isNaN(parsed.getTime()) ? new Intl.DateTimeFormat('es-MX', {dateStyle: 'medium'}).format(parsed) : 'Fecha no indicada';
+        meta.append(source, date);
+        const heading = document.createElement('h3'); heading.textContent = item.title;
+        const copy = document.createElement('p'); copy.textContent = 'Consulta la publicación completa en su fuente original.';
+        const link = document.createElement('a'); link.className = 'external-link'; link.href = item.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; link.textContent = 'Leer en ' + (item.sourceName || 'la fuente') + ' →';
+        card.append(meta, heading, copy, link); grid.append(card);
+      });
+      if (!data.items?.length) throw new Error('no news items');
+      if (status) status.textContent = 'Titulares actualizados desde fuentes externas. Cada enlace abre el artículo original.';
+    } catch {
+      if (status) status.textContent = 'No fue posible consultar las fuentes en este momento. Puedes abrirlas desde la sección de fuentes.';
+      if (grid) { const error = document.createElement('div'); error.className = 'notice news-error'; error.textContent = 'Las fuentes externas pueden limitar temporalmente sus feeds. El resto del portal sigue disponible.'; grid.append(error); }
+    }
+  };
+  loadNews();
+
   const chat = $('#assistant-form');
   chat?.addEventListener('submit', (e) => {
     e.preventDefault(); const input = $('#assistant-input'); const value = input?.value.trim(); if (!value) return;
-    const stream = $('#chat-stream'); const user = document.createElement('div'); user.className = 'bubble user'; user.textContent = value; stream?.append(user);
-    const bot = document.createElement('div'); bot.className = 'bubble';
-    bot.textContent = chat.dataset.response || 'Demostración: la consulta se validaría contra permisos, fuentes y políticas antes de ejecutar cualquier acción.';
-    stream?.append(bot); input.value = ''; stream?.scrollTo({top: stream.scrollHeight, behavior: 'smooth'});
+    askAssistant(value, $('#chat-stream')); if (input) input.value = '';
   });
+
+  const buildSiteAssistant = () => {
+    if ($('#site-assistant') || $('#assistant-form')) return;
+    const root = document.createElement('div');
+    root.id = 'site-assistant'; root.className = 'site-assistant';
+    root.innerHTML = `<button class="site-assistant-toggle" type="button" aria-expanded="false" aria-controls="site-assistant-panel"><span aria-hidden="true">✦</span><span>Asesoría IAM</span></button>
+      <section class="site-assistant-panel" id="site-assistant-panel" aria-label="Asesoría IAM" hidden>
+        <div class="site-assistant-head"><div><strong>Sentinel Assistant</strong><small>Orientación sobre el portal</small></div><button type="button" class="site-assistant-close" aria-label="Cerrar asesoría">×</button></div>
+        <div class="site-assistant-stream" role="log" aria-live="polite"><div class="bubble">Puedo orientarte sobre SentinelID, IAM, integraciones, accesos y auditoría.</div></div>
+        <form class="site-assistant-form"><label class="sr-only" for="site-assistant-input">Escribir una pregunta</label><input id="site-assistant-input" autocomplete="off" placeholder="Escribe tu pregunta"><button class="btn" type="submit">Enviar</button></form>
+        <p class="site-assistant-note">Respuestas basadas en el prototipo y sus datos públicos.</p>
+      </section>`;
+    document.body.append(root);
+    const toggle = $('.site-assistant-toggle', root); const panel = $('.site-assistant-panel', root);
+    const close = $('.site-assistant-close', root); const form = $('.site-assistant-form', root); const input = $('#site-assistant-input', root); const stream = $('.site-assistant-stream', root);
+    const setOpen = (open) => { panel.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); if (open) input?.focus(); };
+    toggle.addEventListener('click', () => setOpen(panel.hidden)); close.addEventListener('click', () => setOpen(false));
+    form.addEventListener('submit', (e) => { e.preventDefault(); const value = input.value.trim(); if (!value) return; askAssistant(value, stream); input.value = ''; });
+  };
+  buildSiteAssistant();
 
   $$('[data-copy]').forEach((btn) => btn.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -115,39 +247,4 @@
     catch { toast('No fue posible copiar automáticamente.'); }
   }));
   const y = $('#year'); if (y) y.textContent = new Date().getFullYear();
-  const buildSiteAssistant = () => {
-    if ($('#site-assistant') || $('#assistant-form')) return;
-    const root = document.createElement('div');
-    root.id = 'site-assistant';
-    root.className = 'site-assistant';
-    root.innerHTML = '<button class="site-assistant-toggle" type="button" aria-expanded="false" aria-controls="site-assistant-panel"><span aria-hidden="true">✦</span><span>Asesoría IAM</span></button><section class="site-assistant-panel" id="site-assistant-panel" aria-label="Asesoría IAM" hidden><div class="site-assistant-head"><div><strong>Sentinel Assistant</strong><small>Orientación sobre el portal</small></div><button type="button" class="site-assistant-close" aria-label="Cerrar asesoría">×</button></div><div class="site-assistant-stream" role="log" aria-live="polite"><div class="bubble">Puedo orientarte sobre SentinelID, IAM, integraciones, accesos y auditoría.</div></div><form class="site-assistant-form"><label class="sr-only" for="site-assistant-input">Escribir una pregunta</label><input id="site-assistant-input" autocomplete="off" placeholder="Escribe tu pregunta"><button class="btn" type="submit">Enviar</button></form><p class="site-assistant-note">Respuestas basadas en el prototipo y sus datos públicos.</p></section>';
-    document.body.append(root);
-    const toggle = $('.site-assistant-toggle', root);
-    const panel = $('.site-assistant-panel', root);
-    const close = $('.site-assistant-close', root);
-    const form = $('.site-assistant-form', root);
-    const input = $('#site-assistant-input', root);
-    const stream = $('.site-assistant-stream', root);
-    const knowledgePromise = fetch('knowledge.json', {cache: 'no-store'}).then((res) => res.ok ? res.json() : {}).catch(() => ({}));
-    const normalize = (value) => String(value || '').toLowerCase().split('').map((char) => 'abcdefghijklmnopqrstuvwxyzáéíóúüñ0123456789 '.includes(char) ? char : ' ').join('').replaceAll('  ', ' ').trim();
-    const answer = async (question) => {
-      const q = normalize(question);
-      const data = await knowledgePromise;
-      const words = q.split(' ').filter((word) => word.length > 2);
-      const faq = (data.faq || []).find((item) => words.filter((word) => normalize(item.question + ' ' + item.answer).includes(word)).length >= 2);
-      if (faq) return faq.answer;
-      if (q.includes('okta') || q.includes('entra') || q.includes('integracion') || q.includes('api')) return 'La primera integración prevista es Okta mediante APIs/MCP. La arquitectura queda preparada para Microsoft Entra ID; esta versión pública todavía usa datos sintéticos.';
-      if (q.includes('modulo') || q.includes('pagina') || q.includes('dashboard') || q.includes('identidad') || q.includes('usuario') || q.includes('grupo') || q.includes('aplicacion') || q.includes('acceso') || q.includes('auditoria')) return 'El portal cubre Dashboard, Identidades, Grupos, Aplicaciones, Asistente IA, Auditoría e Integraciones. Puedes explorar cada módulo desde el menú principal.';
-      if (q.includes('real') || q.includes('credencial') || q.includes('tenant') || q.includes('dato') || q.includes('sintet')) return 'No. El prototipo usa identidades sintéticas y no contiene credenciales ni conexión a un tenant real.';
-      if (q.includes('cambiar') || q.includes('modificar') || q.includes('ejecutar') || q.includes('permiso') || q.includes('privilegio')) return 'El MVP es principalmente consultivo. Una acción sensible debe requerir rol, aprobación, registro, controles de riesgo y supervisión humana.';
-      if (q.includes('que es') || q.includes('para que sirve') || q.includes('objetivo') || q.includes('sentinelid') || q.includes('portal') || q.includes('proyecto')) return data.entity?.directAnswer || 'SentinelID convierte preguntas de lenguaje natural en consultas IAM, muestra resultados explicables y registra cada consulta.';
-      return 'Puedo orientarte sobre SentinelID, sus módulos IAM, integraciones, datos sintéticos y controles de auditoría. Prueba una pregunta más específica.';
-    };
-    const addMessage = (text, role) => { const item = document.createElement('div'); item.className = role === 'user' ? 'bubble user' : 'bubble'; item.textContent = text; stream.append(item); stream.scrollTo({top: stream.scrollHeight, behavior: 'smooth'}); return item; };
-    const ask = async (value) => { addMessage(value, 'user'); const pending = addMessage('Estoy revisando la información del portal…'); pending.textContent = await answer(value); };
-    const setOpen = (open) => { panel.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); if (open) input.focus(); };
-    toggle.addEventListener('click', () => setOpen(panel.hidden));
-    close.addEventListener('click', () => setOpen(false));
-    form.addEventListener('submit', (event) => { event.preventDefault(); const value = input.value.trim(); if (!value) return; input.value = ''; ask(value); });
-  };
-  buildSiteAssistant();})();
+})();
