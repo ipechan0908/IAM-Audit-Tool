@@ -213,3 +213,16 @@ body[data-theme="voice"] .hero::after{content:"";position:absolute;left:0;right:
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{.site-header,.topbar,.hero-actions,.callout,.site-footer,.menu-toggle{display:none!important}body{background:#fff;color:#000}.section{padding:30px 0}}
+.site-assistant{position:fixed;right:22px;bottom:22px;z-index:180;font-size:.95rem}
+.site-assistant-toggle{display:flex;align-items:center;gap:9px;border:0;border-radius:999px;background:var(--brand);color:var(--on-brand);padding:13px 18px;box-shadow:var(--shadow);font:inherit;font-weight:850;cursor:pointer}
+.site-assistant-toggle span:first-child{font-size:1.2rem}
+.site-assistant-panel{position:absolute;right:0;bottom:58px;width:min(390px,calc(100vw - 34px));border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+.site-assistant-head{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:16px 18px;background:var(--surface2);border-bottom:1px solid var(--line)}
+.site-assistant-head strong,.site-assistant-head small{display:block}.site-assistant-head small{color:var(--muted);margin-top:3px}
+.site-assistant-close{border:0;background:transparent;color:var(--muted);font-size:1.6rem;line-height:1;cursor:pointer}
+.site-assistant-stream{max-height:280px;overflow:auto;padding:16px;background:var(--bg)}
+.site-assistant-stream .bubble{margin-bottom:10px}.site-assistant-stream .bubble:last-child{margin-bottom:0}
+.site-assistant-form{display:flex;gap:8px;padding:13px;border-top:1px solid var(--line);background:var(--surface)}
+.site-assistant-form input{min-width:0;flex:1;border:1px solid var(--line);padding:11px 13px;border-radius:999px;background:var(--bg);color:var(--text)}
+.site-assistant-form .btn{padding:10px 14px}.site-assistant-note{margin:0;padding:0 14px 13px;color:var(--muted);font-size:.72rem;background:var(--surface)}
+@media (max-width:960px){.site-assistant{right:17px;bottom:17px}.site-assistant-toggle{padding:12px 15px}.site-assistant-panel{bottom:55px}}
