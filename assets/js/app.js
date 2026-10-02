@@ -115,4 +115,39 @@
     catch { toast('No fue posible copiar automáticamente.'); }
   }));
   const y = $('#year'); if (y) y.textContent = new Date().getFullYear();
-})();
+  const buildSiteAssistant = () => {
+    if ($('#site-assistant') || $('#assistant-form')) return;
+    const root = document.createElement('div');
+    root.id = 'site-assistant';
+    root.className = 'site-assistant';
+    root.innerHTML = '<button class="site-assistant-toggle" type="button" aria-expanded="false" aria-controls="site-assistant-panel"><span aria-hidden="true">✦</span><span>Asesoría IAM</span></button><section class="site-assistant-panel" id="site-assistant-panel" aria-label="Asesoría IAM" hidden><div class="site-assistant-head"><div><strong>Sentinel Assistant</strong><small>Orientación sobre el portal</small></div><button type="button" class="site-assistant-close" aria-label="Cerrar asesoría">×</button></div><div class="site-assistant-stream" role="log" aria-live="polite"><div class="bubble">Puedo orientarte sobre SentinelID, IAM, integraciones, accesos y auditoría.</div></div><form class="site-assistant-form"><label class="sr-only" for="site-assistant-input">Escribir una pregunta</label><input id="site-assistant-input" autocomplete="off" placeholder="Escribe tu pregunta"><button class="btn" type="submit">Enviar</button></form><p class="site-assistant-note">Respuestas basadas en el prototipo y sus datos públicos.</p></section>';
+    document.body.append(root);
+    const toggle = $('.site-assistant-toggle', root);
+    const panel = $('.site-assistant-panel', root);
+    const close = $('.site-assistant-close', root);
+    const form = $('.site-assistant-form', root);
+    const input = $('#site-assistant-input', root);
+    const stream = $('.site-assistant-stream', root);
+    const knowledgePromise = fetch('knowledge.json', {cache: 'no-store'}).then((res) => res.ok ? res.json() : {}).catch(() => ({}));
+    const normalize = (value) => String(value || '').toLowerCase().split('').map((char) => 'abcdefghijklmnopqrstuvwxyzáéíóúüñ0123456789 '.includes(char) ? char : ' ').join('').replaceAll('  ', ' ').trim();
+    const answer = async (question) => {
+      const q = normalize(question);
+      const data = await knowledgePromise;
+      const words = q.split(' ').filter((word) => word.length > 2);
+      const faq = (data.faq || []).find((item) => words.filter((word) => normalize(item.question + ' ' + item.answer).includes(word)).length >= 2);
+      if (faq) return faq.answer;
+      if (q.includes('okta') || q.includes('entra') || q.includes('integracion') || q.includes('api')) return 'La primera integración prevista es Okta mediante APIs/MCP. La arquitectura queda preparada para Microsoft Entra ID; esta versión pública todavía usa datos sintéticos.';
+      if (q.includes('modulo') || q.includes('pagina') || q.includes('dashboard') || q.includes('identidad') || q.includes('usuario') || q.includes('grupo') || q.includes('aplicacion') || q.includes('acceso') || q.includes('auditoria')) return 'El portal cubre Dashboard, Identidades, Grupos, Aplicaciones, Asistente IA, Auditoría e Integraciones. Puedes explorar cada módulo desde el menú principal.';
+      if (q.includes('real') || q.includes('credencial') || q.includes('tenant') || q.includes('dato') || q.includes('sintet')) return 'No. El prototipo usa identidades sintéticas y no contiene credenciales ni conexión a un tenant real.';
+      if (q.includes('cambiar') || q.includes('modificar') || q.includes('ejecutar') || q.includes('permiso') || q.includes('privilegio')) return 'El MVP es principalmente consultivo. Una acción sensible debe requerir rol, aprobación, registro, controles de riesgo y supervisión humana.';
+      if (q.includes('que es') || q.includes('para que sirve') || q.includes('objetivo') || q.includes('sentinelid') || q.includes('portal') || q.includes('proyecto')) return data.entity?.directAnswer || 'SentinelID convierte preguntas de lenguaje natural en consultas IAM, muestra resultados explicables y registra cada consulta.';
+      return 'Puedo orientarte sobre SentinelID, sus módulos IAM, integraciones, datos sintéticos y controles de auditoría. Prueba una pregunta más específica.';
+    };
+    const addMessage = (text, role) => { const item = document.createElement('div'); item.className = role === 'user' ? 'bubble user' : 'bubble'; item.textContent = text; stream.append(item); stream.scrollTo({top: stream.scrollHeight, behavior: 'smooth'}); return item; };
+    const ask = async (value) => { addMessage(value, 'user'); const pending = addMessage('Estoy revisando la información del portal…'); pending.textContent = await answer(value); };
+    const setOpen = (open) => { panel.hidden = !open; toggle.setAttribute('aria-expanded', String(open)); if (open) input.focus(); };
+    toggle.addEventListener('click', () => setOpen(panel.hidden));
+    close.addEventListener('click', () => setOpen(false));
+    form.addEventListener('submit', (event) => { event.preventDefault(); const value = input.value.trim(); if (!value) return; input.value = ''; ask(value); });
+  };
+  buildSiteAssistant();})();
