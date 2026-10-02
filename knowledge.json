@@ -1,0 +1,78 @@
+{
+  "entity": {
+    "name": "SentinelID",
+    "type": "SoftwareApplication",
+    "description": "Aplicación IAM apoyada por agentes de IA para consultar y administrar usuarios, grupos, aplicaciones y accesos, comenzando por Okta.",
+    "directAnswer": "SentinelID convierte preguntas de lenguaje natural en consultas IAM, muestra resultados explicables y registra cada consulta para facilitar revisión, seguridad y cumplimiento.",
+    "language": "es"
+  },
+  "sourceRecord": {
+    "student": "Eduardo Moises Ochoa Alva",
+    "projectType": "aplicacion_movil",
+    "businessDescription": "Aplicación de Identity & Access Management (IAM) apoyada por agentes de inteligencia artificial. Permitirá consultar y administrar información de usuarios, grupos, aplicaciones y accesos. La primera versión se conectará con Okta mediante APIs/MCP y permitirá hacer consultas en lenguaje natural. A futuro podrá integrarse con Microsoft Entra ID e Identity Governance.",
+    "technicalDetails": "Dashboard principal, consulta de usuarios, grupos y aplicaciones, asistente de IA, búsqueda en lenguaje natural, visualización de resultados y registro de consultas. El MVP debe conectarse inicialmente con Okta y dejar la arquitectura preparada para integrar Entra ID. Diseño profesional, tecnológico y minimalista."
+  },
+  "pages": [
+    {
+      "url": "index.html",
+      "name": "Inicio",
+      "purpose": "home"
+    },
+    {
+      "url": "dashboard.html",
+      "name": "Dashboard",
+      "purpose": "dashboard"
+    },
+    {
+      "url": "identidades.html",
+      "name": "Identidades",
+      "purpose": "catalog"
+    },
+    {
+      "url": "grupos.html",
+      "name": "Grupos",
+      "purpose": "catalog"
+    },
+    {
+      "url": "aplicaciones.html",
+      "name": "Aplicaciones",
+      "purpose": "catalog"
+    },
+    {
+      "url": "asistente.html",
+      "name": "Asistente IA",
+      "purpose": "assistant"
+    },
+    {
+      "url": "auditoria.html",
+      "name": "Auditoría",
+      "purpose": "library"
+    },
+    {
+      "url": "integraciones.html",
+      "name": "Integraciones",
+      "purpose": "architecture"
+    }
+  ],
+  "faq": [
+    {
+      "question": "¿El asistente puede modificar accesos?",
+      "answer": "El MVP se plantea principalmente consultivo. Acciones sensibles deben requerir rol, aprobación, registro y controles adicionales."
+    },
+    {
+      "question": "¿Qué integración está priorizada?",
+      "answer": "El brief define Okta como primera integración y deja la arquitectura preparada para Microsoft Entra ID."
+    },
+    {
+      "question": "¿Los datos mostrados son reales?",
+      "answer": "No. El prototipo usa identidades sintéticas y no contiene credenciales ni conexión a ningún tenant."
+    }
+  ],
+  "assumptions": [
+    "SentinelID es una identidad conceptual; no se proporcionó marca ni logo.",
+    "El dashboard utiliza datos sintéticos y no ejecuta cambios reales.",
+    "La integración MCP/API requiere un backend seguro, secretos, scopes y pruebas."
+  ],
+  "updated": "2026-10-01",
+  "prototype": true
+}

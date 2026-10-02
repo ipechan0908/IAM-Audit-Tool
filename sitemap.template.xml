@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>{{BASE_URL}}/index.html</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>{{BASE_URL}}/dashboard.html</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>{{BASE_URL}}/identidades.html</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>{{BASE_URL}}/grupos.html</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>{{BASE_URL}}/aplicaciones.html</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>{{BASE_URL}}/asistente.html</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>{{BASE_URL}}/auditoria.html</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>{{BASE_URL}}/integraciones.html</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>{{BASE_URL}}/privacidad.html</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>{{BASE_URL}}/accesibilidad.html</loc><lastmod>2026-10-01</lastmod></url>
+</urlset>

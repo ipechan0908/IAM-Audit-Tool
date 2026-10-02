@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 720" width="1000" height="720" role="img" aria-labelledby="art-title art-desc">
+      <title id="art-title">Ilustración original para SentinelID</title><desc id="art-desc">Composición visual abstracta relacionada con Pregunta por el acceso. Entiende el riesgo. Actúa con evidencia..</desc>
+      <defs><pattern id="pattern" width="72" height="72" patternUnits="userSpaceOnUse">
+          <path d="M8 10L54 28 30 62Z" fill="none" stroke="#2bd4c8" opacity=".14"/><circle cx="8" cy="10" r="3" fill="#7c63ff" opacity=".35"/><circle cx="54" cy="28" r="3" fill="#ffbd59" opacity=".35"/>
+        </pattern><linearGradient id="fade" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#11162a"/><stop offset="1" stop-color="#191f39"/></linearGradient></defs>
+      <rect width="100%" height="100%" fill="url(#fade)"/><rect width="100%" height="100%" fill="url(#pattern)"/>
+      <g transform="translate(500 350)"><path d="M0-260L230-175V20C230 180 125 280 0 330-125 280-230 180-230 20V-175Z" fill="#191f39" stroke="#7c63ff" stroke-width="16"/><circle cy="-20" r="78" fill="none" stroke="#2bd4c8" stroke-width="24"/><path d="M0 58V175" stroke="#2bd4c8" stroke-width="28" stroke-linecap="round"/><g stroke="#2a3357" stroke-width="5"><path d="M-330-190L-160-110M330-190L160-110M-340 130L-190 85M340 130L190 85"/></g><g fill="#ffbd59"><circle cx="-350" cy="-200" r="24"/><circle cx="350" cy="-200" r="24"/><circle cx="-360" cy="140" r="24"/><circle cx="360" cy="140" r="24"/></g></g>
+    </svg>

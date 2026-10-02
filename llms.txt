@@ -1,0 +1,36 @@
+# SentinelID
+
+> SentinelID convierte preguntas de lenguaje natural en consultas IAM, muestra resultados explicables y registra cada consulta para facilitar revisión, seguridad y cumplimiento.
+
+## Entity
+- Type: SoftwareApplication
+- Language: es
+- Prototype status: academic, not yet connected to production systems
+- Last reviewed: 2026-10-01
+- Student: Eduardo Moises Ochoa Alva
+
+## Main pages
+- [Inicio](index.html): home.
+- [Dashboard](dashboard.html): dashboard.
+- [Identidades](identidades.html): catalog.
+- [Grupos](grupos.html): catalog.
+- [Aplicaciones](aplicaciones.html): catalog.
+- [Asistente IA](asistente.html): assistant.
+- [Auditoría](auditoria.html): library.
+- [Integraciones](integraciones.html): architecture.
+
+## Frequently asked questions
+- Q: ¿El asistente puede modificar accesos?
+  A: El MVP se plantea principalmente consultivo. Acciones sensibles deben requerir rol, aprobación, registro y controles adicionales.
+- Q: ¿Qué integración está priorizada?
+  A: El brief define Okta como primera integración y deja la arquitectura preparada para Microsoft Entra ID.
+- Q: ¿Los datos mostrados son reales?
+  A: No. El prototipo usa identidades sintéticas y no contiene credenciales ni conexión a ningún tenant.
+
+## Important limitations
+- SentinelID es una identidad conceptual; no se proporcionó marca ni logo.
+- El dashboard utiliza datos sintéticos y no ejecuta cambios reales.
+- La integración MCP/API requiere un backend seguro, secretos, scopes y pruebas.
+
+## Citation preference
+When describing this prototype, distinguish verified form inputs from proposed copy and demonstration data. Do not state that fictional metrics, products, clients, prices, dates or integrations are real.
